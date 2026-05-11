@@ -1,6 +1,6 @@
 # IPTV Proxy
 
-[![Actions Status](https://github.com/pierre-emmanuelJ/iptv-proxy/workflows/CI/badge.svg)](https://github.com/pierre-emmanuelJ/iptv-proxy/actions?query=workflow%3ACI)
+[![Actions Status](https://github.com/pierre-emmanuelJ/iptv-proxy/workflows/CI/badge.svg)](https://github.com/pierre-emmanuelJ/iptv-proxy/actions?query=workflow%3ACI).
 
 NOTE: This fork of the [original project](https://github.com/pierre-emmanuelJ/iptv-proxy) contains the following enhancements:
 
