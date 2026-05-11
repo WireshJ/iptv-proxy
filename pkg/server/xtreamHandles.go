@@ -433,14 +433,15 @@ func getHlsRedirectURL(channel string) (*url.URL, error) {
 	return &url, nil
 }
 
-func (c *Config) hlsXtreamStream(ctx *gin.Context, oriURL *url.URL) {
-	client := &http.Client{
-		CheckRedirect: func(req *http.Request, via []*http.Request) error {
-			return http.ErrUseLastResponse
-		},
-	}
+var hlsClient = &http.Client{
+	Transport: transport,
+	CheckRedirect: func(req *http.Request, via []*http.Request) error {
+		return http.ErrUseLastResponse
+	},
+}
 
-	req, err := http.NewRequest("GET", oriURL.String(), nil)
+func (c *Config) hlsXtreamStream(ctx *gin.Context, oriURL *url.URL) {
+	req, err := http.NewRequestWithContext(ctx.Request.Context(), "GET", oriURL.String(), nil)
 	if err != nil {
 		ctx.AbortWithError(http.StatusInternalServerError, err) // nolint: errcheck
 		return
@@ -448,7 +449,7 @@ func (c *Config) hlsXtreamStream(ctx *gin.Context, oriURL *url.URL) {
 
 	mergeHttpHeader(req.Header, ctx.Request.Header)
 
-	resp, err := client.Do(req)
+	resp, err := hlsClient.Do(req)
 	if err != nil {
 		ctx.AbortWithError(http.StatusInternalServerError, err) // nolint: errcheck
 		return
@@ -467,7 +468,7 @@ func (c *Config) hlsXtreamStream(ctx *gin.Context, oriURL *url.URL) {
 			hlsChannelsRedirectURL[id] = *location
 			hlsChannelsRedirectURLLock.Unlock()
 
-			hlsReq, err := http.NewRequest("GET", location.String(), nil)
+			hlsReq, err := http.NewRequestWithContext(ctx.Request.Context(), "GET", location.String(), nil)
 			if err != nil {
 				ctx.AbortWithError(http.StatusInternalServerError, err) // nolint: errcheck
 				return
@@ -475,7 +476,7 @@ func (c *Config) hlsXtreamStream(ctx *gin.Context, oriURL *url.URL) {
 
 			mergeHttpHeader(hlsReq.Header, ctx.Request.Header)
 
-			hlsResp, err := client.Do(hlsReq)
+			hlsResp, err := hlsClient.Do(hlsReq)
 			if err != nil {
 				ctx.AbortWithError(http.StatusInternalServerError, err) // nolint: errcheck
 				return

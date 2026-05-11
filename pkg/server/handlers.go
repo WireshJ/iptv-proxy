@@ -32,13 +32,20 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-var httpClient = &http.Client{
-	Timeout: 30 * time.Second,
-	Transport: &http.Transport{
-		MaxIdleConns:        100,
-		MaxIdleConnsPerHost: 100,
-		IdleConnTimeout:     90 * time.Second,
-	},
+var transport = &http.Transport{
+	MaxIdleConns:        100,
+	MaxIdleConnsPerHost: 100,
+	IdleConnTimeout:     90 * time.Second,
+}
+
+// streamClient has no Timeout — streams run until the client disconnects.
+// Context cancellation (set on each request) handles cleanup.
+var streamClient = &http.Client{Transport: transport}
+
+// apiClient is used for short metadata/API calls where a timeout makes sense.
+var apiClient = &http.Client{
+	Timeout:   15 * time.Second,
+	Transport: transport,
 }
 
 func (c *Config) getM3U(ctx *gin.Context) {
@@ -79,7 +86,7 @@ func (c *Config) stream(ctx *gin.Context, oriURL *url.URL) {
 
 	mergeHttpHeader(req.Header, ctx.Request.Header)
 
-	resp, err := httpClient.Do(req)
+	resp, err := streamClient.Do(req)
 	if err != nil {
 		ctx.AbortWithError(http.StatusInternalServerError, err) // nolint: errcheck
 		return
