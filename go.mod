@@ -1,10 +1,10 @@
-module github.com/incmve/iptv-proxy
+module github.com/WireshJ/iptv-proxy
 
 require (
 	github.com/gin-contrib/cors v0.0.0-20190226021855-50921afdc5c1
 	github.com/gin-gonic/gin v1.9.0
 	github.com/inconshreveable/mousetrap v1.0.0 // indirect
-	// github.com/jamesnetherton/m3u v0.4.0
+	github.com/jamesnetherton/m3u v0.4.0
 	github.com/mitchellh/go-homedir v1.1.0
 	github.com/satori/go.uuid v1.2.0
 	github.com/spf13/cobra v1.2.1
@@ -50,4 +50,4 @@ require (
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
 
-go 1.17
+go 1.22

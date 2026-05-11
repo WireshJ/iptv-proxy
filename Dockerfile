@@ -1,26 +1,19 @@
-# Use the Golang image to build your project
-FROM golang:1.17-alpine AS builder
+FROM golang:1.22-alpine AS builder
 
-# Install necessary packages
 RUN apk add --no-cache ca-certificates
 
-# Set the working directory
-WORKDIR /go/src/github.com/incmve/iptv-proxy
+WORKDIR /build
 
-# Copy the source code into the container
+COPY go.mod go.sum ./
+COPY vendor/ vendor/
 COPY . .
 
-# Build the project
-RUN GO111MODULE=off CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o iptv-proxy .
+RUN CGO_ENABLED=0 GOOS=linux go build -mod=vendor -ldflags="-s -w" -o iptv-proxy .
 
-# Use the Alpine image for the final stage
-FROM alpine:3
+FROM alpine:3.19
 
-# Install necessary packages including curl
-RUN apk add --no-cache curl
+RUN apk add --no-cache ca-certificates tzdata
 
-# Copy the built binary from the builder stage
-COPY --from=builder /go/src/github.com/incmve/iptv-proxy/iptv-proxy /
+COPY --from=builder /build/iptv-proxy /usr/local/bin/iptv-proxy
 
-# Set the entry point for the container
-ENTRYPOINT ["/iptv-proxy"]
+ENTRYPOINT ["iptv-proxy"]

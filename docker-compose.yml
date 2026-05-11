@@ -11,47 +11,38 @@ services:
       - 8888:8888/tcp # gluetun HTTP proxy
       - 8388:8388/tcp # gluetun Shadowsocks
       - 8388:8388/udp # gluetun Shadowsocks
-      - 8080:8080 # IPTV proxy
+      - 8080:8080    # IPTV proxy
     volumes:
       - /data/apps/gluetun:/gluetun
     environment:
       - VPN_SERVICE_PROVIDER=protonvpn
-      - OPENVPN_USER=XXXXXXXXXX
-      - OPENVPN_PASSWORD=XXXXXXXXXX
+      - OPENVPN_USER=CHANGE_ME
+      - OPENVPN_PASSWORD=CHANGE_ME
       - SERVER_COUNTRIES=Netherlands
       - FREE_ONLY=on
-      # Timezone for accurate log times
       - TZ=Europe/Amsterdam
-      # Server list updater
-      # See https://github.com/qdm12/gluetun-wiki/blob/main/setup/servers.md#update-the-vpn-servers-list
       - UPDATER_PERIOD=
       - HTTPPROXY=off
       - HTTP_CONTROL_SERVER_ADDRESS=:8001
 
   iptv-proxy:
-    image: incmve/iptv-proxy
+    image: ghcr.io/wireshj/iptv-proxy:latest
     container_name: iptv-proxy
     volumes:
-      # If your are using local m3u file instead of m3u remote file
-      # put your m3u file in this folder
+      # Mount a local m3u file instead of using a remote URL (optional)
       - /data/apps/iptv-proxy:/root/iptv
     restart: always
     environment:
-      # if you are using m3u remote file
-      # M3U_URL: https://example.com/iptvfile.m3u
-      M3U_URL: http://XXXXXXXXXX:8000/get.php?username=XXXXXXXXXX&password=XXXXXXXXXX&type=m3u_plus&output=mpegts
-      # Port to expose the IPTVs endpoints
+      # Remote m3u URL (comment out if using local file)
+      M3U_URL: http://PROVIDER_HOST:8000/get.php?username=CHANGE_ME&password=CHANGE_ME&type=m3u_plus&output=mpegts
+      # Hostname or IP to expose IPTV endpoints (use the host machine IP, not Docker)
+      HOSTNAME: CHANGE_ME
       PORT: 8080
-      # Hostname or IP to expose the IPTVs endpoints (for machine not for docker)
-      HOSTNAME: iptvproxy
       GIN_MODE: release
-      ## Xtream-code proxy configuration
-
-      ##### UNSAFE AUTH TODO ADD REAL AUTH
-      #will be used for m3u and xtream auth poxy
-      USER: test
-      PASSWORD: testpassword
-    network_mode: "service:gluetun" # Connect to gluetun service (only if in the same compose file)
+      # Proxy credentials (clients connect with these)
+      USER: CHANGE_ME
+      PASSWORD: CHANGE_ME
+    network_mode: "service:gluetun"
     depends_on:
       gluetun:
         condition: service_healthy

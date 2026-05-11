@@ -1,186 +1,215 @@
-# IPTV Proxy
+# 📡 IPTV Proxy
 
-[![Actions Status](https://github.com/pierre-emmanuelJ/iptv-proxy/workflows/CI/badge.svg)](https://github.com/pierre-emmanuelJ/iptv-proxy/actions?query=workflow%3ACI).
+A self-hosted reverse proxy for IPTV M3U playlists and Xtream Codes API. Expose your IPTV provider behind your own credentials and hostname, with optional VPN routing via Gluetun.
 
-NOTE: This fork of the [original project](https://github.com/pierre-emmanuelJ/iptv-proxy) contains the following enhancements:
+![Go](https://img.shields.io/badge/Go-1.22+-00ADD8?logo=go&logoColor=white)
+![License](https://img.shields.io/badge/license-GPL--3.0-green)
+![Docker](https://img.shields.io/badge/docker-ghcr.io%2Fwireshj%2Fiptv--proxy-blue?logo=docker)
 
-- Corrected issue with Xtream Codes EPG not loading
-- Fixed issue with Xtream Codes VOD (Shows & Movies) as the IPTV provider returned data seems to be partially complete, or missing pieces that this proxy is expecting
-- Continue on error EXTINF
-- Added Gluetun for VPN
+---
 
-## Description 
+## Table of Contents
 
-Iptv-Proxy is a project to proxyfie an m3u file
-and to proxyfie an Xtream iptv service (client API).
+- [Features](#-features)
+- [Requirements](#-requirements)
+- [Installation](#-installation)
+  - [Docker (recommended)](#docker-recommended)
+  - [Docker Compose with Gluetun VPN](#docker-compose-with-gluetun-vpn)
+  - [Manual (Go binary)](#manual-go-binary)
+- [Configuration](#-configuration)
+  - [Environment variables](#environment-variables)
+- [Usage](#-usage)
+  - [M3U proxy](#m3u-proxy)
+  - [Xtream Codes proxy](#xtream-codes-proxy)
+- [Credits](#-credits)
 
-### M3U and M3U8
+---
 
-M3U service convert an iptv m3u file into a web proxy server.
+## ✨ Features
 
-It's transform all the original tracks to an new url pointing on the proxy.
+| Feature | Description |
+|---------|-------------|
+| 🔄 **M3U proxy** | Rewrites all channel URLs in your M3U playlist to point to the proxy |
+| 📺 **M3U8 proxy** | Transparent proxy for HLS (m3u8) streams |
+| 🎬 **Xtream Codes** | Full proxy for the Xtream Codes client API — live, VOD, series, EPG |
+| 🔐 **Credential swap** | Replaces provider credentials with your own user/password |
+| 🌐 **VPN support** | Route all traffic through Gluetun (or any network namespace) |
+| ⚡ **Caching** | M3U playlist cached locally to reduce provider requests |
 
+---
 
-### Xtream code client api
+## 📋 Requirements
 
-proxy on Xtream code (client API)
+| Requirement | Notes |
+|-------------|-------|
+| Docker | For the recommended container setup |
+| Go 1.22+ | Only for manual/binary builds |
+| IPTV provider | M3U URL or Xtream Codes credentials |
 
-support live, vod, series and full epg :rocket:
+---
 
-### M3u Example
+## 🚀 Installation
 
-Original iptv m3u file
+### Docker (recommended)
 
-```m3u
+```bash
+docker run -d \
+  --name iptv-proxy \
+  -p 8080:8080 \
+  -e HOSTNAME=your-server-ip \
+  -e PORT=8080 \
+  -e M3U_URL="http://provider.example.com:8000/get.php?username=user&password=pass&type=m3u_plus&output=mpegts" \
+  -e USER=myuser \
+  -e PASSWORD=mypassword \
+  -e GIN_MODE=release \
+  ghcr.io/wireshj/iptv-proxy:latest
+```
+
+**Port:** `8080`
+
+---
+
+### Docker Compose with Gluetun VPN
+
+Download the compose file and fill in your credentials:
+
+```bash
+mkdir -p /data/apps/iptv-proxy
+curl -o /data/apps/iptv-proxy/docker-compose.yml \
+  https://raw.githubusercontent.com/WireshJ/iptv-proxy/master/docker-compose.yml
+
+cd /data/apps/iptv-proxy
+# Edit docker-compose.yml with your VPN and IPTV credentials
+docker compose up -d
+```
+
+> The `iptv-proxy` container shares the Gluetun network namespace — all IPTV traffic is routed through the VPN automatically.
+
+**Volumes:**
+- `/data/apps/gluetun` — Gluetun configuration and state
+- `/data/apps/iptv-proxy` — optional local M3U file mount
+
+---
+
+### Manual (Go binary)
+
+```bash
+git clone https://github.com/WireshJ/iptv-proxy.git
+cd iptv-proxy
+
+go build -mod=vendor -o iptv-proxy .
+
+./iptv-proxy \
+  --hostname your-server-ip \
+  --port 8080 \
+  --m3u-url "http://provider.example.com/iptv.m3u" \
+  --user myuser \
+  --password mypassword
+```
+
+All CLI flags can also be set as environment variables (replace `-` with `_`, e.g. `M3U_URL`).
+
+---
+
+## ⚙️ Configuration
+
+### Environment variables
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `HOSTNAME` | *(required)* | Hostname or IP that clients will connect to |
+| `PORT` | `8080` | Port the proxy listens on |
+| `ADVERTISED_PORT` | same as `PORT` | Port exposed to clients — useful behind a reverse proxy |
+| `M3U_URL` | — | Remote M3U URL or path to local file (e.g. `/root/iptv/iptv.m3u`) |
+| `M3U_FILE_NAME` | `iptv.m3u` | Filename of the proxified M3U endpoint |
+| `M3U_CACHE_EXPIRATION` | `1` | M3U cache lifetime in hours |
+| `USER` | `usertest` | Username clients use to authenticate with the proxy |
+| `PASSWORD` | `passwordtest` | Password clients use to authenticate with the proxy |
+| `XTREAM_USER` | — | Xtream Codes username from your provider |
+| `XTREAM_PASSWORD` | — | Xtream Codes password from your provider |
+| `XTREAM_BASE_URL` | — | Xtream Codes base URL e.g. `http://provider.example.com:8080` |
+| `XTREAM_API_GET` | `false` | Generate `get.php` from the Xtream API instead of the original endpoint |
+| `HTTPS` | `false` | Use HTTPS for proxified URLs |
+| `CUSTOM_ENDPOINT` | — | Optional path prefix for all proxy endpoints |
+| `GIN_MODE` | — | Set to `release` to suppress Gin debug output |
+| `DEBUG` | — | Set to `true` to enable debug logging |
+
+> **Xtream auto-detection:** If your `M3U_URL` contains `/get.php` with `username` and `password`, Xtream mode is enabled automatically — no need to set `XTREAM_USER`, `XTREAM_PASSWORD`, or `XTREAM_BASE_URL` separately.
+
+---
+
+## 🔌 Usage
+
+### M3U proxy
+
+After starting the proxy, your proxified M3U playlist is available at:
+
+```
+http://<HOSTNAME>:<PORT>/iptv.m3u?username=<USER>&password=<PASSWORD>
+```
+
+All channel URLs in the playlist point back to the proxy. Clients stream through the proxy to the original provider.
+
+**Example with original M3U:**
+```
 #EXTM3U
-#EXTINF:-1 tvg-ID="examplechanel1.com" tvg-name="chanel1" tvg-logo="http://ch.xyz/logo1.png" group-title="USA HD",CHANEL1-HD
-http://iptvexample.net:1234/12/test/1
-#EXTINF:-1 tvg-ID="examplechanel2.com" tvg-name="chanel2" tvg-logo="http://ch.xyz/logo2.png" group-title="USA HD",CHANEL2-HD
-http://iptvexample.net:1234/13/test/2
-#EXTINF:-1 tvg-ID="examplechanel3.com" tvg-name="chanel3" tvg-logo="http://ch.xyz/logo3.png" group-title="USA HD",CHANEL3-HD
-http://iptvexample.net:1234/14/test/3
-#EXTINF:-1 tvg-ID="examplechanel4.com" tvg-name="chanel4" tvg-logo="http://ch.xyz/logo4.png" group-title="USA HD",CHANEL4-HD
-http://iptvexample.net:1234/15/test/4
+#EXTINF:-1 tvg-name="Channel 1",Channel 1
+http://provider.example.com:1234/user/pass/1
 ```
 
-What M3U proxy IPTV do
- - convert chanels url to new endpoints
- - convert original m3u file with new routes pointing to the proxy
-
-Start proxy server example
-
-```Bash
-iptv-proxy --m3u-url http://example.com/get.php?username=user&password=pass&type=m3u_plus&output=m3u8 \
-             --port 8080 \
-             --hostname proxyexample.com \
-             --user test \
-             --password passwordtest
+**Proxified output:**
 ```
-
-
- That's give you an m3u file on a specific endpoint `iptv.m3u` in our example
- 
- `http://proxyserver.com:8080/iptv.m3u?username=test&password=passwordtest`
-
-All the new routes pointing on your proxy server
-```m3u
 #EXTM3U
-#EXTINF:-1 tvg-ID="examplechanel1.com" tvg-name="chanel1" tvg-logo="http://ch.xyz/logo1.png" group-title="USA HD",CHANEL1-HD
-http://proxyserver.com:8080/12/test/1?username=test&password=passwordtest
-#EXTINF:-1 tvg-ID="examplechanel2.com" tvg-name="chanel2" tvg-logo="http://ch.xyz/logo2.png" group-title="USA HD",CHANEL2-HD
-http://proxyserver.com:8080/13/test/2?username=test&password=passwordtest
-#EXTINF:-1 tvg-ID="examplechanel3.com" tvg-name="chanel3" tvg-logo="http://ch.xyz/logo3.png" group-title="USA HD",CHANEL3-HD
-http://proxyserver.com:8080/14/test/3?username=test&password=passwordtest
-#EXTINF:-1 tvg-ID="examplechanel4.com" tvg-name="chanel4" tvg-logo="http://ch.xyz/logo4.png" group-title="USA HD",CHANEL4-HD
-http://proxyserver.com:8080/15/test/4?username=test&password=passwordtest
+#EXTINF:-1 tvg-name="Channel 1",Channel 1
+http://your-server-ip:8080/<token>/myuser/mypassword/0/1
 ```
 
-### M3u8 Example
+---
 
-The m3u8 feature is like m3u.
-The playlist should be in the m3u format and should contain all m3u8 tracks.
+### Xtream Codes proxy
 
-Sample of the original m3u file containing m3u8 track:
-```Shell
-#EXTM3U
-#EXTINF:-1 tvg-ID="examplechanel1.com" tvg-name="chanel1" tvg-logo="http://ch.xyz/logo1.png" group-title="USA HD",CHANEL1-HD
-http://iptvexample.net:1234/12/test/1.m3u8
-#EXTINF:-1 tvg-ID="examplechanel2.com" tvg-name="chanel2" tvg-logo="http://ch.xyz/logo2.png" group-title="USA HD",CHANEL2-HD
-http://iptvexample.net:1234/13/test/2.m3u8
+When Xtream mode is active, the proxy exposes the full Xtream Codes API on your hostname with your credentials:
+
+| Endpoint | Description |
+|----------|-------------|
+| `GET /get.php` | M3U playlist |
+| `GET /player_api.php` | Live, VOD, series, EPG data |
+| `POST /player_api.php` | Same, for apps that POST |
+| `GET /xmltv.php` | EPG XML data |
+| `GET /live/<user>/<pass>/:id` | Live stream |
+| `GET /movie/<user>/<pass>/:id` | VOD stream |
+| `GET /series/<user>/<pass>/:id` | Series stream |
+
+**Original credentials (provider):**
+```
+user:     xtream_user
+password: xtream_password
+base-url: http://provider.example.com:8080
 ```
 
-### Xtream code client API example
-
-```Bash
-% iptv-proxy --m3u-url http://example.com:1234/get.php?username=user&password=pass&type=m3u_plus&output=m3u8 \
-             --port 8080 \
-             --hostname proxyexample.com \
-             ## put xtream flags if you want to add xtream proxy
-             --xtream-user xtream_user \
-             --xtream-password xtream_password \
-             --xtream-base-url http://example.com:1234 \
-             --user test \
-             --password passwordtest
-             
+**Proxified credentials (clients use these):**
+```
+user:     myuser
+password: mypassword
+base-url: http://your-server-ip:8080
 ```
 
-What Xtream proxy do
+---
 
- - convert xtream `xtream-user ` and `xtream-password` into new `user` and `password`
- - convert `xtream-base-url` with `hostname` and `port`
- 
-Original xtream credentials
- 
- ```
- user: xtream_user
- password: xtream_password
- base-url: http://example.com:1234
- ```
- 
-New xtream credentials
+## 🙏 Credits
 
- ```
- user: test
- password: passwordtest
- base-url: http://proxyexample.com:8080
- ```
- 
- All xtream live, streams, vod, series... are proxyfied! 
- 
- 
- You can get the m3u file with the original Xtream api request:
- ```
- http://proxyexample.com:8080/get.php?username=test&password=passwordtest&type=m3u_plus&output=ts
- ```
+Based on [iptv-proxy](https://github.com/pierre-emmanuelJ/iptv-proxy) by [Pierre-Emmanuel Jacquier](https://github.com/pierre-emmanuelJ).
 
+Enhancements in this fork:
+- Fixed Xtream Codes EPG not loading
+- Fixed Xtream Codes VOD (Shows & Movies) with incomplete provider responses
+- Continue-on-error for malformed `EXTINF` entries
+- Gluetun VPN integration
+- Updated to Go 1.22, fixed deprecated APIs, shared HTTP client
+- Multi-platform Docker image (`linux/amd64`, `linux/arm64`) via GHCR
 
-## Installation
-## With Docker
-
-### Prerequisite
-
- - Add an m3u URL in `docker-compose.yml` or add local file in `iptv` folder
- - `HOSTNAME` and `PORT` to expose
- - CHange VPN credentials and provider
-
-```Yaml
- environment:
-      # if you are using m3u remote file
-      # M3U_URL: http://example.com:1234/get.php?username=user&password=pass&type=m3u_plus&output=m3u8
-      M3U_URL: /root/iptv/iptv.m3u
-      # Hostname or IP to expose the IPTVs endpoints (for machine not for docker)
-      HOSTNAME: localhost
-      GIN_MODE: release
-      ## Xtream-code proxy configuration
-      ## (put these env variables if you want to add xtream proxy)
-      XTREAM_USER: xtream_user
-      XTREAM_PASSWORD: xtream_password
-      XTREAM_BASE_URL: "http://example.com:1234"
-      USER: test
-      PASSWORD: testpassword
-```
-
-### Start
-
-```
-% docker-compose up -d
-```
-
-## TODO
-
-there is basic auth just for testing.
-change with a real auth with database and user management
-and auth with token...
-
-**ENJOY!**
-
-## Powered by
-
+**Powered by:**
+- [gin](https://github.com/gin-gonic/gin)
 - [cobra](https://github.com/spf13/cobra)
 - [go.xtream-codes](https://github.com/tellytv/go.xtream-codes)
-- [gin](https://github.com/gin-gonic/gin)
-
-Grab me a beer 🍻
-
-[![paypal](https://www.paypalobjects.com/en_US/i/btn/btn_donate_LG.gif)](https://www.paypal.com/donate?hosted_button_id=WQAAMQWJPKHUN)
-
+- [gluetun](https://github.com/qdm12/gluetun)

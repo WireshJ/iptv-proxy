@@ -7,89 +7,74 @@ builds:
     flags:
       - -mod=vendor
       - -a
+    ldflags:
+      - -s -w
     goos:
       - windows
       - darwin
       - linux
-
     goarch:
       - amd64
       - arm64
 
 archives:
-  -
-   format_overrides:
-     - goos: windows
-       format: zip
+  - format_overrides:
+      - goos: windows
+        format: zip
 
 release:
   github:
-    owner: pierre-emmanuelJ
+    owner: WireshJ
     name: iptv-proxy
   draft: false
 
 nfpms:
-  -
-   vendor: Pierre-Emmanuel Jacquier
-   homepage: https://github.com/pierre-emmanuelJ/iptv-proxy
-   maintainer: Pierre-Emmanuel <pierre-emmanuel.jacquier@epitech.eu>
-   description: Reverse proxy on iptv m3u file
-   license: Apache 2.0
-   formats:
-     - deb
-     - rpm
+  - vendor: WireshJ
+    homepage: https://github.com/WireshJ/iptv-proxy
+    maintainer: WireshJ
+    description: Self-hosted reverse proxy for IPTV M3U playlists and Xtream Codes API
+    license: GPL-3.0
+    formats:
+      - deb
+      - rpm
 
 dockers:
   - image_templates:
-    - "docker.pkg.github.com/pierre-emmanuelj/iptv-proxy/iptv-proxy:{{ .Tag }}-arm64"
-    - "docker.pkg.github.com/pierre-emmanuelj/iptv-proxy/iptv-proxy:v{{ .Major }}-arm64"
-    - "docker.pkg.github.com/pierre-emmanuelj/iptv-proxy/iptv-proxy:v{{ .Major }}.{{ .Minor }}-arm64"
-    - "docker.pkg.github.com/pierre-emmanuelj/iptv-proxy/iptv-proxy:latest-arm64"
-    - "pierro777/iptv-proxy:{{ .Tag }}-arm64"
-    - "pierro777/iptv-proxy:v{{ .Major }}-arm64"
-    - "pierro777/iptv-proxy:v{{ .Major }}.{{ .Minor }}-arm64"
-    - "pierro777/iptv-proxy:latest-arm64"
+      - "ghcr.io/wireshj/iptv-proxy:{{ .Tag }}-arm64"
+      - "ghcr.io/wireshj/iptv-proxy:v{{ .Major }}-arm64"
+      - "ghcr.io/wireshj/iptv-proxy:v{{ .Major }}.{{ .Minor }}-arm64"
+      - "ghcr.io/wireshj/iptv-proxy:latest-arm64"
     use: buildx
     goos: linux
     goarch: arm64
     ids:
-    - iptv-proxy
+      - iptv-proxy
     build_flag_templates:
-    - "--platform=linux/arm64/v8"
-    - "--label=org.opencontainers.image.created={{.Date}}"
-    - "--label=org.opencontainers.image.name={{.ProjectName}}"
-    - "--label=org.opencontainers.image.revision={{.FullCommit}}"
-    - "--label=org.opencontainers.image.version={{.Version}}"
+      - "--platform=linux/arm64/v8"
+      - "--label=org.opencontainers.image.created={{.Date}}"
+      - "--label=org.opencontainers.image.name={{.ProjectName}}"
+      - "--label=org.opencontainers.image.revision={{.FullCommit}}"
+      - "--label=org.opencontainers.image.version={{.Version}}"
     skip_push: false
-    dockerfile: .Dockerfile.goreleaser
 
   - image_templates:
-    - "docker.pkg.github.com/pierre-emmanuelj/iptv-proxy/iptv-proxy:{{ .Tag }}-amd64"
-    - "docker.pkg.github.com/pierre-emmanuelj/iptv-proxy/iptv-proxy:v{{ .Major }}-amd64"
-    - "docker.pkg.github.com/pierre-emmanuelj/iptv-proxy/iptv-proxy:v{{ .Major }}.{{ .Minor }}-amd64"
-    - "docker.pkg.github.com/pierre-emmanuelj/iptv-proxy/iptv-proxy:latest-amd64"
-    - "docker.pkg.github.com/pierre-emmanuelj/iptv-proxy/iptv-proxy:{{ .Tag }}"
-    - "docker.pkg.github.com/pierre-emmanuelj/iptv-proxy/iptv-proxy:v{{ .Major }}"
-    - "docker.pkg.github.com/pierre-emmanuelj/iptv-proxy/iptv-proxy:v{{ .Major }}.{{ .Minor }}"
-    - "docker.pkg.github.com/pierre-emmanuelj/iptv-proxy/iptv-proxy:latest"
-    - "pierro777/iptv-proxy:{{ .Tag }}-amd64"
-    - "pierro777/iptv-proxy:v{{ .Major }}-amd64"
-    - "pierro777/iptv-proxy:v{{ .Major }}.{{ .Minor }}-amd64"
-    - "pierro777/iptv-proxy:latest-amd64"
-    - "pierro777/iptv-proxy:{{ .Tag }}"
-    - "pierro777/iptv-proxy:v{{ .Major }}"
-    - "pierro777/iptv-proxy:v{{ .Major }}.{{ .Minor }}"
-    - "pierro777/iptv-proxy:latest"
+      - "ghcr.io/wireshj/iptv-proxy:{{ .Tag }}-amd64"
+      - "ghcr.io/wireshj/iptv-proxy:v{{ .Major }}-amd64"
+      - "ghcr.io/wireshj/iptv-proxy:v{{ .Major }}.{{ .Minor }}-amd64"
+      - "ghcr.io/wireshj/iptv-proxy:latest-amd64"
+      - "ghcr.io/wireshj/iptv-proxy:{{ .Tag }}"
+      - "ghcr.io/wireshj/iptv-proxy:v{{ .Major }}"
+      - "ghcr.io/wireshj/iptv-proxy:v{{ .Major }}.{{ .Minor }}"
+      - "ghcr.io/wireshj/iptv-proxy:latest"
     use: buildx
     goos: linux
     goarch: amd64
     ids:
-    - iptv-proxy
+      - iptv-proxy
     build_flag_templates:
-    - "--platform=linux/amd64"
-    - "--label=org.opencontainers.image.created={{.Date}}"
-    - "--label=org.opencontainers.image.name={{.ProjectName}}"
-    - "--label=org.opencontainers.image.revision={{.FullCommit}}"
-    - "--label=org.opencontainers.image.version={{.Version}}"
+      - "--platform=linux/amd64"
+      - "--label=org.opencontainers.image.created={{.Date}}"
+      - "--label=org.opencontainers.image.name={{.ProjectName}}"
+      - "--label=org.opencontainers.image.revision={{.FullCommit}}"
+      - "--label=org.opencontainers.image.version={{.Version}}"
     skip_push: false
-    dockerfile: .Dockerfile.goreleaser

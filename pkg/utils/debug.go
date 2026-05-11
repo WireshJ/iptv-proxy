@@ -2,13 +2,12 @@ package utils
 
 import (
 	"log"
-
-	"github.com/pierre-emmanuelJ/iptv-proxy/pkg/config"
+	"os"
+	"strings"
 )
 
-// Logs a message if debug logging is enabled
 func DebugLog(format string, v ...interface{}) {
-	if config.DebugLoggingEnabled {
+	if strings.EqualFold(os.Getenv("DEBUG"), "true") {
 		log.Printf("[DEBUG] "+format, v...)
 	}
 }

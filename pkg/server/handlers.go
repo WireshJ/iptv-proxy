@@ -22,7 +22,6 @@ import (
 	"bytes"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"log"
 	"net/http"
 	"net/url"
@@ -32,6 +31,15 @@ import (
 
 	"github.com/gin-gonic/gin"
 )
+
+var httpClient = &http.Client{
+	Timeout: 30 * time.Second,
+	Transport: &http.Transport{
+		MaxIdleConns:        100,
+		MaxIdleConnsPerHost: 100,
+		IdleConnTimeout:     90 * time.Second,
+	},
+}
 
 func (c *Config) getM3U(ctx *gin.Context) {
 	ctx.Header("Content-Disposition", fmt.Sprintf(`attachment; filename=%q`, c.M3UFileName))
@@ -63,8 +71,6 @@ func (c *Config) m3u8ReverseProxy(ctx *gin.Context) {
 }
 
 func (c *Config) stream(ctx *gin.Context, oriURL *url.URL) {
-	client := &http.Client{}
-
 	req, err := http.NewRequest("GET", oriURL.String(), nil)
 	if err != nil {
 		ctx.AbortWithError(http.StatusInternalServerError, err) // nolint: errcheck
@@ -73,7 +79,7 @@ func (c *Config) stream(ctx *gin.Context, oriURL *url.URL) {
 
 	mergeHttpHeader(req.Header, ctx.Request.Header)
 
-	resp, err := client.Do(req)
+	resp, err := httpClient.Do(req)
 	if err != nil {
 		ctx.AbortWithError(http.StatusInternalServerError, err) // nolint: errcheck
 		return
@@ -139,7 +145,7 @@ func (c *Config) authenticate(ctx *gin.Context) {
 }
 
 func (c *Config) appAuthenticate(ctx *gin.Context) {
-	contents, err := ioutil.ReadAll(ctx.Request.Body)
+	contents, err := io.ReadAll(ctx.Request.Body)
 	if err != nil {
 		ctx.AbortWithError(http.StatusInternalServerError, err) // nolint: errcheck
 		return
@@ -159,5 +165,5 @@ func (c *Config) appAuthenticate(ctx *gin.Context) {
 		ctx.AbortWithStatus(http.StatusUnauthorized)
 	}
 
-	ctx.Request.Body = ioutil.NopCloser(bytes.NewReader(contents))
+	ctx.Request.Body = io.NopCloser(bytes.NewReader(contents))
 }

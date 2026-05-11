@@ -25,9 +25,9 @@ import (
 	"os"
 	"strings"
 
-	"github.com/incmve/iptv-proxy/pkg/config"
+	"github.com/WireshJ/iptv-proxy/pkg/config"
 
-	"github.com/incmve/iptv-proxy/pkg/server"
+	"github.com/WireshJ/iptv-proxy/pkg/server"
 
 	homedir "github.com/mitchellh/go-homedir"
 	"github.com/spf13/cobra"

@@ -21,7 +21,7 @@ package server
 import (
 	"errors"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"log"
 	"net/http"
 	"net/url"
@@ -33,7 +33,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/jamesnetherton/m3u"
-	xtreamapi "github.com/incmve/iptv-proxy/pkg/xtream-proxy"
+	xtreamapi "github.com/WireshJ/iptv-proxy/pkg/xtream-proxy"
 	uuid "github.com/satori/go.uuid"
 )
 
@@ -231,7 +231,7 @@ func (c *Config) xtreamPlayerAPIGET(ctx *gin.Context) {
 }
 
 func (c *Config) xtreamPlayerAPIPOST(ctx *gin.Context) {
-	contents, err := ioutil.ReadAll(ctx.Request.Body)
+	contents, err := io.ReadAll(ctx.Request.Body)
 	if err != nil {
 		ctx.AbortWithError(http.StatusInternalServerError, err) // nolint: errcheck
 		return
@@ -265,11 +265,6 @@ func (c *Config) xtreamPlayerAPI(ctx *gin.Context, q url.Values) {
 	}
 
 	log.Printf("[iptv-proxy] %v | %s |Action\t%s\n", time.Now().Format("2006/01/02 - 15:04:05"), ctx.ClientIP(), action)
-
-	if err != nil {
-		ctx.AbortWithError(http.StatusInternalServerError, err) // nolint: errcheck
-		return
-	}
 
 	ctx.JSON(http.StatusOK, resp)
 }
@@ -487,7 +482,7 @@ func (c *Config) hlsXtreamStream(ctx *gin.Context, oriURL *url.URL) {
 			}
 			defer hlsResp.Body.Close()
 
-			b, err := ioutil.ReadAll(hlsResp.Body)
+			b, err := io.ReadAll(hlsResp.Body)
 			if err != nil {
 				ctx.AbortWithError(http.StatusInternalServerError, err) // nolint: errcheck
 				return
