@@ -7,6 +7,11 @@ on:
     tags:
       - "v*.*.*"
       - "[0-9]*.[0-9]*.[0-9]*"
+    paths-ignore:
+      - "**.md"
+      - "traefik/**"
+      - ".gitignore"
+      - ".goreleaser.yaml"
 
 jobs:
   build:
@@ -45,7 +50,7 @@ jobs:
         with:
           context: .
           file: Dockerfile
-          platforms: linux/amd64,linux/arm64
+          platforms: ${{ startsWith(github.ref, 'refs/tags/') && 'linux/amd64,linux/arm64' || 'linux/amd64' }}
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
