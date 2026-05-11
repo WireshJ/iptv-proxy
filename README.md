@@ -198,15 +198,18 @@ base-url: http://your-server-ip:8080
 
 ## 🙏 Credits
 
-Based on [iptv-proxy](https://github.com/pierre-emmanuelJ/iptv-proxy) by [Pierre-Emmanuel Jacquier](https://github.com/pierre-emmanuelJ).
+Originally created by [Pierre-Emmanuel Jacquier](https://github.com/pierre-emmanuelJ) — [pierre-emmanuelJ/iptv-proxy](https://github.com/pierre-emmanuelJ/iptv-proxy).
 
-Enhancements in this fork:
+Extended by [incmve](https://github.com/incmve) — [incmve/iptv-proxy](https://github.com/incmve/iptv-proxy):
 - Fixed Xtream Codes EPG not loading
 - Fixed Xtream Codes VOD (Shows & Movies) with incomplete provider responses
 - Continue-on-error for malformed `EXTINF` entries
 - Gluetun VPN integration
+
+Further developed by [WireshJ](https://github.com/WireshJ):
 - Updated to Go 1.22, fixed deprecated APIs, shared HTTP client
 - Multi-platform Docker image (`linux/amd64`, `linux/arm64`) via GHCR
+- Fixed GitHub Actions workflow, updated all references
 
 **Powered by:**
 - [gin](https://github.com/gin-gonic/gin)
