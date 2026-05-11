@@ -94,10 +94,16 @@ func (c *Config) stream(ctx *gin.Context, oriURL *url.URL) {
 	defer resp.Body.Close()
 
 	mergeHttpHeader(ctx.Writer.Header(), resp.Header)
+	ctx.Header("X-Accel-Buffering", "no")
 	ctx.Status(resp.StatusCode)
+
+	buf := make([]byte, 32*1024)
 	ctx.Stream(func(w io.Writer) bool {
-		io.Copy(w, resp.Body) // nolint: errcheck
-		return false
+		n, err := resp.Body.Read(buf)
+		if n > 0 {
+			w.Write(buf[:n]) // nolint: errcheck
+		}
+		return err == nil
 	})
 }
 
