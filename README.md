@@ -5,7 +5,7 @@ A self-hosted reverse proxy for IPTV M3U playlists and Xtream Codes API. Expose 
 ![Go](https://img.shields.io/badge/Go-1.25+-00ADD8?logo=go&logoColor=white)
 ![License](https://img.shields.io/badge/license-GPL--3.0-green)
 ![Docker](https://img.shields.io/badge/docker-ghcr.io%2Fwireshj%2Fiptv--proxy-blue?logo=docker)
-![Release](https://img.shields.io/github/v/release/WireshJ/iptv-proxy?label=release)
+[![Release](https://img.shields.io/github/v/release/WireshJ/iptv-proxy)](https://github.com/WireshJ/iptv-proxy/releases/latest)
 
 ---
 
