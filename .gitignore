@@ -1,25 +1,22 @@
-# Binaries for programs and plugins
+# Build output
+iptv-proxy
+iptv-proxy-amd64
+iptv-proxy-arm64
 *.exe
-*.dll
-*.so
-*.dylib
 
-# Test binary, build with `go test -c`
+# Go test & coverage
 *.test
-
-# Output of the go coverage tool, specifically when used with LiteIDE
 *.out
 
-# Project-local glide cache, RE: https://github.com/Masterminds/glide/issues/736
-.glide/
+# Local m3u file
+iptv/*.m3u
 
-iptv-proxy
-iptv/iptv.m3u
+# Traefik certificates (contains private keys)
+traefik/acme.json
 
-# Backup files
+# Editor & OS
+.vscode/
+.idea/
 *.bak
-
-/.history
-/.lh
-/.vscode
-
+.DS_Store
+Thumbs.db
