@@ -8,7 +8,9 @@ COPY go.mod go.sum ./
 COPY vendor/ vendor/
 COPY . .
 
-RUN CGO_ENABLED=0 GOOS=linux go build -mod=vendor -ldflags="-s -w" -o iptv-proxy .
+ARG TARGETOS=linux
+ARG TARGETARCH=amd64
+RUN CGO_ENABLED=0 GOOS=${TARGETOS} GOARCH=${TARGETARCH} go build -mod=vendor -ldflags="-s -w" -o iptv-proxy .
 
 FROM alpine:3.19
 

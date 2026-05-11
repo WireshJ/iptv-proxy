@@ -1,0 +1,9 @@
+.git
+.github
+*.md
+traefik/
+iptv/*.m3u
+.goreleaser.yaml
+pkg/server/xtreamHandles_test.go
+pkg/server/xtreamHandles_test_data/
+pkg/utils/
