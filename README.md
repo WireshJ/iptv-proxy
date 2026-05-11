@@ -2,9 +2,10 @@
 
 A self-hosted reverse proxy for IPTV M3U playlists and Xtream Codes API. Expose your IPTV provider behind your own credentials and hostname, with optional VPN routing via Gluetun.
 
-![Go](https://img.shields.io/badge/Go-1.22+-00ADD8?logo=go&logoColor=white)
+![Go](https://img.shields.io/badge/Go-1.25+-00ADD8?logo=go&logoColor=white)
 ![License](https://img.shields.io/badge/license-GPL--3.0-green)
 ![Docker](https://img.shields.io/badge/docker-ghcr.io%2Fwireshj%2Fiptv--proxy-blue?logo=docker)
+![Release](https://img.shields.io/github/v/release/WireshJ/iptv-proxy?label=release)
 
 ---
 
@@ -43,7 +44,7 @@ A self-hosted reverse proxy for IPTV M3U playlists and Xtream Codes API. Expose 
 | Requirement | Notes |
 |-------------|-------|
 | Docker | For the recommended container setup |
-| Go 1.22+ | Only for manual/binary builds |
+| Go 1.25+ | Only for manual/binary builds |
 | IPTV provider | M3U URL or Xtream Codes credentials |
 
 ---
@@ -207,9 +208,14 @@ Extended by [incmve](https://github.com/incmve) — [incmve/iptv-proxy](https://
 - Gluetun VPN integration
 
 Further developed by [WireshJ](https://github.com/WireshJ):
-- Updated to Go 1.22, fixed deprecated APIs, shared HTTP client
-- Multi-platform Docker image (`linux/amd64`, `linux/arm64`) via GHCR
-- Fixed GitHub Actions workflow, updated all references
+- Upgraded to Go 1.25, removed all deprecated APIs (`ioutil`, `satori/go.uuid`, `mitchellh/go-homedir`)
+- Context-aware HTTP streaming — streams cancel cleanly when a client disconnects
+- Shared HTTP client with connection pooling for better performance
+- Multi-platform Docker image (`linux/amd64`, `linux/arm64`) published to GHCR via Go cross-compilation
+- Fully automated CI/CD with GitHub Actions — supports semver and CalVer tags
+- Updated Traefik setup to v3 with Let's Encrypt support
+- Removed dead code (`pkg/utils/`) and broken test stubs
+- All dependencies updated to latest stable versions
 
 **Powered by:**
 - [gin](https://github.com/gin-gonic/gin)
