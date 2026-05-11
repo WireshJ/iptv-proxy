@@ -1,0 +1,37 @@
+global:
+  checkNewVersion: false
+  sendAnonymousUsage: false
+
+api:
+  dashboard: false
+
+log:
+  level: INFO
+
+entryPoints:
+  web:
+    address: :80
+    http:
+      redirections:
+        entryPoint:
+          to: websecure
+          scheme: https
+          permanent: true
+
+  websecure:
+    address: :443
+
+# Certificates via Let's Encrypt (HTTP challenge — port 80 must be publicly reachable)
+# For DNS challenge instead, see: https://doc.traefik.io/traefik/https/acme/#dnschallenge
+certificatesResolvers:
+  letsencrypt:
+    acme:
+      email: your@email.com   # <-- change this
+      storage: /acme.json
+      httpChallenge:
+        entryPoint: web
+
+providers:
+  docker:
+    endpoint: unix:///var/run/docker.sock
+    exposedByDefault: false
