@@ -306,7 +306,6 @@ func (c *XtreamClient) sendRequest(action string, parameters url.Values) ([]byte
 	file := "player_api.php"
 	if action == "xmltv.php" {
 		file = action
-		action = ""
 	}
 	url := fmt.Sprintf("%s/%s?username=%s&password=%s", c.BaseURL, file, c.Username, c.Password)
 	if action != "" {
