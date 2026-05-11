@@ -1,6 +1,6 @@
-FROM golang:1.25-alpine AS builder
+FROM --platform=$BUILDPLATFORM golang:1.25-alpine AS builder
 
-RUN apk add --no-cache ca-certificates
+RUN apk add --no-cache ca-certificates tzdata
 
 WORKDIR /build
 
@@ -12,10 +12,10 @@ ARG TARGETOS=linux
 ARG TARGETARCH=amd64
 RUN CGO_ENABLED=0 GOOS=${TARGETOS} GOARCH=${TARGETARCH} go build -mod=vendor -ldflags="-s -w" -o iptv-proxy .
 
-FROM alpine:3.19
+FROM scratch
 
-RUN apk add --no-cache ca-certificates tzdata
+COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
+COPY --from=builder /usr/share/zoneinfo /usr/share/zoneinfo
+COPY --from=builder /build/iptv-proxy /iptv-proxy
 
-COPY --from=builder /build/iptv-proxy /usr/local/bin/iptv-proxy
-
-ENTRYPOINT ["iptv-proxy"]
+ENTRYPOINT ["/iptv-proxy"]
