@@ -321,7 +321,7 @@ func (c *Config) xtreamStreamPlay(ctx *gin.Context) {
 
 func (c *Config) xtreamStreamTimeshift(ctx *gin.Context) {
 	duration := ctx.Param("duration")
-	start := ctx.Param("start")
+	start := normalizeTimeshiftStart(ctx.Param("start"))
 	id := ctx.Param("id")
 	rpURL, err := url.Parse(fmt.Sprintf("%s/timeshift/%s/%s/%s/%s/%s", c.XtreamBaseURL, c.XtreamUser, c.XtreamPassword, duration, start, id))
 	if err != nil {

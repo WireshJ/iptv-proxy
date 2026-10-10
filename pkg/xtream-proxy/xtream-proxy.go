@@ -151,17 +151,20 @@ func (c *Client) Action(config *config.ProxyConfig, action string, q url.Values)
 				return
 			}
 		}
-		respBody, err = c.GetShortEPG(q["stream_id"][0], limit)
+		respBody, err = c.epgResponse(getShortEPG, q["stream_id"][0], limit)
 	case getSimpleDataTable:
 		httpcode, err = validateParams(q, "stream_id")
 		if err != nil {
 			return
 		}
-		respBody, err = c.GetEPG(q["stream_id"][0])
+		respBody, err = c.epgResponse(getSimpleDataTable, q["stream_id"][0], 0)
 	default:
-		respBody, err = c.login(config.User.String(), config.Password.String(), protocol+"://"+config.HostConfig.Hostname, config.AdvertisedPort, protocol)
+		respBody, err = c.login(config.User.String(), config.Password.String(), config.HostConfig.Hostname, config.AdvertisedPort, protocol)
 	}
 
+	if err != nil && httpcode == 0 {
+		httpcode = http.StatusBadGateway
+	}
 	return
 }
 

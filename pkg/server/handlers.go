@@ -94,6 +94,7 @@ func (c *Config) stream(ctx *gin.Context, oriURL *url.URL) {
 	defer resp.Body.Close()
 
 	mergeHttpHeader(ctx.Writer.Header(), resp.Header)
+	repairAcceptRanges(resp.StatusCode, ctx.Writer.Header())
 	ctx.Header("X-Accel-Buffering", "no")
 	ctx.Status(resp.StatusCode)
 
