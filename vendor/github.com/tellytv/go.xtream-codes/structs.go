@@ -50,7 +50,7 @@ type Category struct {
 // Stream is a streamble video source.
 type Stream struct {
 	Added              *Timestamp `json:"added"`
-	CategoryID         FlexInt    `json:"category_id,string"`
+	CategoryID         FlexInt    `json:"category_id"`
 	CategoryName       string     `json:"category_name"`
 	ContainerExtension string     `json:"container_extension"`
 	CustomSid          string     `json:"custom_sid"`
